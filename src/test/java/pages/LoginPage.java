@@ -1,5 +1,6 @@
 package pages;
 
+import config.Config;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -20,7 +21,7 @@ public class LoginPage extends BasePage {
     WebElement btn_login;
 
     public void goto_url() {
-        driver.navigate().to("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+        driver.navigate().to(Config.loginUrl());
     }
 
     public void setUsername(String username) {
