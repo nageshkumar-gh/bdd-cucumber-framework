@@ -1,6 +1,5 @@
 # BDD Cucumber Framework
 
-[![CI](https://github.com/nageshkumar-gh/bdd-cucumber-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/nageshkumar-gh/bdd-cucumber-framework/actions/workflows/ci.yml)
 [![Java](https://img.shields.io/badge/Java-17-437291?logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-C71A36?logo=apachemaven&logoColor=white)](https://maven.apache.org/)
 [![Selenium](https://img.shields.io/badge/Selenium-4.43-43B02A?logo=selenium&logoColor=white)](https://www.selenium.dev/)
