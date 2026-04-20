@@ -1,39 +1,64 @@
 package pages;
 
-import config.Config;
-import org.openqa.selenium.WebDriver;
+import base.BasePage;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import utils.WaitUtils;
+
+import java.util.List;
 
 public class LoginPage extends BasePage {
 
-    public LoginPage(WebDriver driver) {
-        super(driver);
+    private final By usernameInput = By.xpath("//input[@name='username']");
+    private final By passwordInput = By.xpath("//input[@type='password']");
+    private final By loginButton = By.xpath("//button[@type='submit']");
+    private final By alertMessage = By.xpath("//p[contains(@class,'oxd-alert-content-text')]");
+    private final By requiredFieldErrors = By.xpath("//span[text()='Required']");
+    private final By orangeHrmHeader = By.xpath("//img[@alt='client brand banner']");
+
+    public LoginPage(WaitUtils waits) {
+        super(waits);
     }
 
-    @FindBy(xpath = "//input[@name='username']")
-    WebElement txt_username;
-
-    @FindBy(xpath = "//input[@type='password']")
-    WebElement txt_password;
-
-    @FindBy(xpath = "//button[@type='submit']")
-    WebElement btn_login;
-
-    public void goto_url() {
-        driver.navigate().to(Config.loginUrl());
+    public void open(String url) {
+        driver().navigate().to(url);
+        explicitWait().until(ExpectedConditions.visibilityOfElementLocated(usernameInput));
     }
 
-    public void setUsername(String username) {
-        txt_username.sendKeys(username);
+    public void enterUsername(String username) {
+        WebElement usernameBox = explicitWait().until(ExpectedConditions.visibilityOfElementLocated(usernameInput));
+        usernameBox.clear();
+        usernameBox.sendKeys(username);
     }
 
-    public void setPassword(String password) {
-        txt_password.sendKeys(password);
+    public void enterPassword(String password) {
+        WebElement passwordBox = explicitWait().until(ExpectedConditions.visibilityOfElementLocated(passwordInput));
+        passwordBox.clear();
+        passwordBox.sendKeys(password);
     }
 
     public void clickLogin() {
-        btn_login.click();
+        explicitWait().until(ExpectedConditions.elementToBeClickable(loginButton)).click();
+    }
+
+    public void clearUsername() {
+        explicitWait().until(ExpectedConditions.visibilityOfElementLocated(usernameInput)).clear();
+    }
+
+    public void clearPassword() {
+        explicitWait().until(ExpectedConditions.visibilityOfElementLocated(passwordInput)).clear();
+    }
+
+    public String getAlertMessageText() {
+        return explicitWait().until(ExpectedConditions.visibilityOfElementLocated(alertMessage)).getText().trim();
+    }
+
+    public boolean isOrangeHrmHeaderVisible() {
+        return explicitWait().until(ExpectedConditions.visibilityOfElementLocated(orangeHrmHeader)).isDisplayed();
+    }
+
+    public List<WebElement> requiredFieldErrors() {
+        return explicitWait().until(ExpectedConditions.visibilityOfAllElementsLocatedBy(requiredFieldErrors));
     }
 }
-

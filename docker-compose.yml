@@ -1,0 +1,13 @@
+# Optional Selenium Grid for local/CI runs against browsers in Docker.
+# Start: docker compose up -d
+# Run tests: SELENIUM_GRID_URL=http://localhost:4444 mvn test
+services:
+  selenium:
+    image: selenium/standalone-chrome:4.25.0
+    shm_size: "2gb"
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+    environment:
+      - SE_NODE_MAX_SESSIONS=4
+      - SE_NODE_SESSION_TIMEOUT=300

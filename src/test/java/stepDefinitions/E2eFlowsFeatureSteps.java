@@ -6,7 +6,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 /**
- * Step definitions for `e2e-flows.feature`.
+ * Step definitions for split E2E features under {@code src/test/resources/features/}
+ * (for example {@code e2e-employee-lifecycle.feature}).
  * <p>
  * Notes:
  * - Shared authentication steps are implemented in {@link AuthStep}.

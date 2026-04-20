@@ -13,8 +13,12 @@ public final class OptionsFactory {
         if (headless) {
             options.addArguments("--headless=new");
             options.addArguments("--window-size=1920,1080");
+            options.addArguments("--disable-gpu");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+        } else {
+            options.addArguments("--start-maximized");
         }
-        options.addArguments("--start-maximized");
         return options;
     }
 
@@ -22,6 +26,8 @@ public final class OptionsFactory {
         FirefoxOptions options = new FirefoxOptions();
         if (headless) {
             options.addArguments("-headless");
+            options.addArguments("-width=1920");
+            options.addArguments("-height=1080");
         }
         return options;
     }
@@ -31,8 +37,12 @@ public final class OptionsFactory {
         if (headless) {
             options.addArguments("--headless=new");
             options.addArguments("--window-size=1920,1080");
+            options.addArguments("--disable-gpu");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+        } else {
+            options.addArguments("--start-maximized");
         }
-        options.addArguments("--start-maximized");
         return options;
     }
 }

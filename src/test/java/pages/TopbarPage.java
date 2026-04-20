@@ -1,41 +1,30 @@
 package pages;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
-import java.util.List;
+import base.BasePage;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import utils.WaitUtils;
 
 public class TopbarPage extends BasePage {
 
-    public TopbarPage(WebDriver driver) {
-        super(driver);
+    private final By breadcrumbTitle = By.cssSelector(".oxd-topbar-header-breadcrumb h6");
+    /** OrangeHRM 5.x top-right user area */
+    private final By userDropdownTab = By.className("oxd-userdropdown-tab");
+
+    public TopbarPage(WaitUtils waits) {
+        super(waits);
     }
 
-    @FindBy(xpath = "//h6[@class='oxd-text oxd-text--h6 oxd-topbar-header-breadcrumb-module']")
-    WebElement menu_title;
-
-    @FindBy(xpath = "//p[@class='oxd-userdropdown-name']")
-    WebElement profile;
-
-    @FindBy(xpath = "//a[@role='menuitem']")
-    List<WebElement> profileOptionList;
-
     public String getMenuTitle() {
-        return menu_title.getText();
+        return explicitWait().until(ExpectedConditions.visibilityOfElementLocated(breadcrumbTitle)).getText().trim();
     }
 
     public void selectProfile() {
-        profile.click();
+        explicitWait().until(ExpectedConditions.elementToBeClickable(userDropdownTab)).click();
     }
 
-    public void clickLogout(String option) {
-        for (WebElement item : profileOptionList) {
-            if (item.getText().equalsIgnoreCase(option)) {
-                item.click();
-                break;
-            }
-        }
+    public void clickLogout(String linkText) {
+        By logout = By.linkText(linkText);
+        explicitWait().until(ExpectedConditions.elementToBeClickable(logout)).click();
     }
 }
-

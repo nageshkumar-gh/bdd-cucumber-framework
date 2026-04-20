@@ -15,11 +15,6 @@ import io.cucumber.java.en.When;
  */
 public class EmployeeFeatureSteps {
 
-    @Given("I am logged in as \"Admin\" with password \"Admin123\"")
-    public void employeefeaturesteps_i_am_logged_in_as_admin_with_password_admin123() {
-        // TODO: implement UI automation for this step
-    }
-
     @Given("I navigate to PIM > Employee List")
     public void employeefeaturesteps_i_navigate_to_pim_employee_list() {
         // TODO: implement UI automation for this step

@@ -1,54 +1,49 @@
 package stepDefinitions;
 
-import io.cucumber.java.en.*;
-import config.Config;
-import drivers.DriverManager;
-import org.openqa.selenium.WebDriver;
-import pages.LoginPage;
-import org.testng.Assert;
-import pages.TopbarPage;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import services.LoginService;
 
+/**
+ * Legacy {@code login.feature} glue — delegates to {@link LoginService}.
+ */
 public class LoginStep {
 
-    private WebDriver driver;
-    private LoginPage loginPage;
-    private TopbarPage topbarPage;
+    private final LoginService loginService;
+
+    public LoginStep(LoginService loginService) {
+        this.loginService = loginService;
+    }
 
     @Given("the user is on the login page")
     public void user_is_on_the_login_page() {
-        driver = DriverManager.getDriver();
-        driver.navigate().to(Config.loginUrl());
-        loginPage = new LoginPage(driver);
+        loginService.openLoginPage();
     }
 
     @When("the user enters valid credentials")
     public void user_enters_valid_username_and_password() {
-        loginPage.setUsername(Config.username());
-        loginPage.setPassword(Config.password());
-        loginPage.clickLogin();
+        loginService.loginWithConfiguredCredentials();
     }
 
     @Then("the user should be redirected to the dashboard")
     public void user_should_be_redirected_to_the_dashboard() {
-        topbarPage = new TopbarPage(driver);
-        Assert.assertEquals(topbarPage.getMenuTitle(), "Dashboard", "User is not on the Dashboard page");
+        loginService.assertOnDashboard();
     }
 
     @And("the user logouts of the application")
     public void theUserLogoutsOfTheApplication() {
-        topbarPage.selectProfile();
-        topbarPage.clickLogout("Logout");
+        loginService.logoutFromDashboard();
     }
 
     @When("the user enters invalid credentials")
     public void theUserEntersInvalidCredentials() {
-        loginPage.setUsername("InvalidUser");
-        loginPage.setPassword("InvalidPass");
-        loginPage.clickLogin();
+        loginService.loginWithInvalidCredentials();
     }
 
     @Then("the user should see an error message")
     public void theUserShouldSeeAnErrorMessage() {
+        loginService.assertErrorMessageVisible();
     }
 }
-
