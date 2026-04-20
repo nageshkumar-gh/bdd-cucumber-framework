@@ -10,13 +10,12 @@ import io.qameta.allure.Attachment;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
-import pages.LoginPage;
 
 import java.time.Duration;
 
 public class Hooks {
 
-    @Before("@login or @pim")
+    @Before(order = 0)
     public void setUp() {
         WebDriver driver = DriverFactory.createDriver();
         driver.manage().window().maximize();
@@ -24,17 +23,7 @@ public class Hooks {
         DriverManager.setDriver(driver);
     }
 
-    @Before("@pim")
-    public void loginForPim() {
-        WebDriver driver = DriverManager.getDriver();
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.goto_url();
-        loginPage.setUsername(Config.username());
-        loginPage.setPassword(Config.password());
-        loginPage.clickLogin();
-    }
-
-    @After("@login or @pim")
+    @After(order = 100)
     public void tearDown(Scenario scenario) {
         if (scenario.isFailed()) {
             attachScreenshot();
@@ -51,4 +40,3 @@ public class Hooks {
         return new byte[0];
     }
 }
-
