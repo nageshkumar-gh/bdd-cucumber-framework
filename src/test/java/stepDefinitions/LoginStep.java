@@ -1,6 +1,7 @@
 package stepDefinitions;
 
 import io.cucumber.java.en.*;
+import config.Config;
 import drivers.DriverManager;
 import org.openqa.selenium.WebDriver;
 import pages.LoginPage;
@@ -13,19 +14,17 @@ public class LoginStep {
     private LoginPage loginPage;
     private TopbarPage topbarPage;
 
-    private static final String LOGIN_URL = "https://opensource-demo.orangehrmlive.com/web/index.php/auth/login";
-
     @Given("the user is on the login page")
     public void user_is_on_the_login_page() {
         driver = DriverManager.getDriver();
-        driver.navigate().to(LOGIN_URL);
+        driver.navigate().to(Config.loginUrl());
         loginPage = new LoginPage(driver);
     }
 
     @When("the user enters valid credentials")
     public void user_enters_valid_username_and_password() {
-        loginPage.setUsername("Admin");
-        loginPage.setPassword("admin123");
+        loginPage.setUsername(Config.username());
+        loginPage.setPassword(Config.password());
         loginPage.clickLogin();
     }
 

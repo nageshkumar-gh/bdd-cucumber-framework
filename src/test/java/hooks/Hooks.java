@@ -2,6 +2,7 @@ package hooks;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import config.Config;
 import drivers.DriverFactory;
 import drivers.DriverManager;
 import org.openqa.selenium.WebDriver;
@@ -15,7 +16,7 @@ public class Hooks {
     public void setUp() {
         WebDriver driver = DriverFactory.createDriver();
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Config.implicitWaitSeconds()));
         DriverManager.setDriver(driver);
     }
 
@@ -24,8 +25,8 @@ public class Hooks {
         WebDriver driver = DriverManager.getDriver();
         LoginPage loginPage = new LoginPage(driver);
         loginPage.goto_url();
-        loginPage.setUsername("Admin");
-        loginPage.setPassword("admin123");
+        loginPage.setUsername(Config.username());
+        loginPage.setPassword(Config.password());
         loginPage.clickLogin();
     }
 
