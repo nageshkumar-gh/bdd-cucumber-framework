@@ -22,11 +22,23 @@ import org.testng.annotations.DataProvider;
         tags = "@smoke",
         plugin = {
                 "pretty",
-                "summary"
+                "summary",
+                // Why: emits Allure-compatible results for Cucumber 7 (steps, tags, timing) into target/allure-results.
+                "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
         },
         monochrome = true
 )
 public class TestRunner extends AbstractTestNGCucumberTests {
+
+    /**
+     * TestNG/Cucumber requires a public no-arg constructor for runner instantiation.
+     *
+     * <p><b>Why explicit</b>: documenting the implicit default constructor makes the runner entry point
+     * obvious for engineers onboarding to the framework.
+     */
+    public TestRunner() {
+        super();
+    }
 
     /**
      * Provides Cucumber scenarios to TestNG.
