@@ -60,12 +60,20 @@ public final class ConfigReader {
     private final Properties properties;
 
     /**
-     * Effective environment name used to choose the properties file.
+     * Effective environment used to choose the properties file.
      *
      * <p><b>Why</b>: keeping it on the instance makes debugging configuration issues straightforward
      * (logs can print which environment was actually loaded).
      */
-    private final String environment;
+    private final EnvironmentConfig environment;
+
+    /**
+     * Stable environment code for logging and error messages (e.g., qa, uat).
+     *
+     * <p><b>Why duplicate</b>: {@link EnvironmentConfig} is the source of truth for mapping, but a
+     * simple string code is convenient for messages without leaking classpath details everywhere.
+     */
+    private final String environmentCode;
 
     /**
      * Creates a new reader and loads the classpath properties file for the resolved environment.
@@ -73,8 +81,9 @@ public final class ConfigReader {
      * <p><b>Why private</b>: enforces the Singleton contract. All callers must use {@link #getInstance()}.
      */
     private ConfigReader() {
-        this.environment = resolveEnvironment();
-        this.properties = loadPropertiesForEnvironment(this.environment);
+        this.environment = EnvironmentConfig.fromSystemProperty(System.getProperty(ENV_PROPERTY_KEY));
+        this.environmentCode = this.environment.getCode();
+        this.properties = loadPropertiesForClasspathResource(this.environment, this.environment.getClasspathResource());
     }
 
     /**
@@ -155,7 +164,7 @@ public final class ConfigReader {
      * @return active environment
      */
     public String getEnvironment() {
-        return environment;
+        return environmentCode;
     }
 
     /**
@@ -177,63 +186,32 @@ public final class ConfigReader {
     }
 
     /**
-     * Resolves the active environment from the {@link #ENV_PROPERTY_KEY} system property.
-     *
-     * <p><b>Why normalize</b>: avoids subtle bugs caused by whitespace and inconsistent casing in CI.
-     *
-     * @return normalized environment name (defaults to {@link #DEFAULT_ENV})
-     */
-    private static String resolveEnvironment() {
-        String raw = System.getProperty(ENV_PROPERTY_KEY);
-        if (raw == null || raw.isBlank()) {
-            return DEFAULT_ENV;
-        }
-        return raw.trim().toLowerCase();
-    }
-
-    /**
-     * Loads the properties file from the classpath for a given environment.
+     * Loads the properties file from the classpath for a given resource path.
      *
      * <p><b>Why classpath</b>: keeps configuration versioned with the test code and works the same
      * locally and in GitHub Actions.
      *
-     * @param env environment name (qa, uat, etc.)
+     * @param environment       resolved environment used for error messages (must not be null)
+     * @param classpathResource classpath resource path (relative to classpath root)
      * @return loaded {@link Properties}
      */
-    private static Properties loadPropertiesForEnvironment(String env) {
-        Objects.requireNonNull(env, "env must not be null");
+    private static Properties loadPropertiesForClasspathResource(EnvironmentConfig environment, String classpathResource) {
+        Objects.requireNonNull(environment, "environment must not be null");
+        Objects.requireNonNull(classpathResource, "classpathResource must not be null");
 
-        String resourcePath = buildConfigResourcePath(env);
         Properties props = new Properties();
 
-        try (InputStream is = ConfigReader.class.getClassLoader().getResourceAsStream(resourcePath)) {
+        try (InputStream is = ConfigReader.class.getClassLoader().getResourceAsStream(classpathResource)) {
             if (is == null) {
-                throw new IllegalStateException("Config file not found on classpath: " + resourcePath
-                        + " (env=" + env + ")");
+                throw new IllegalStateException("Config file not found on classpath: " + classpathResource
+                        + " (env=" + environment.getCode() + ")");
             }
             props.load(is);
             return props;
         } catch (IOException ex) {
-            throw new IllegalStateException("Failed to load config file: " + resourcePath
-                    + " (env=" + env + ")", ex);
+            throw new IllegalStateException("Failed to load config file: " + classpathResource
+                    + " (env=" + environment.getCode() + ")", ex);
         }
-    }
-
-    /**
-     * Builds the classpath location of the environment configuration file.
-     *
-     * <p><b>Why this mapping</b>:
-     * - QA uses {@code config/config.properties} as the convention-default.
-     * - Non-QA environments use {@code config/config-{env}.properties} for clarity.
-     *
-     * @param env environment name
-     * @return resource path relative to classpath root
-     */
-    private static String buildConfigResourcePath(String env) {
-        if (DEFAULT_ENV.equals(env)) {
-            return "config/config.properties";
-        }
-        return "config/config-" + env + ".properties";
     }
 
     /**
@@ -249,7 +227,7 @@ public final class ConfigReader {
         String value = properties.getProperty(key);
         if (value == null || value.isBlank()) {
             throw new IllegalStateException("Missing/blank required config key: " + key
-                    + " (env=" + environment + ")");
+                    + " (env=" + environmentCode + ", resource=" + environment.getClasspathResource() + ")");
         }
         return value.trim();
     }
