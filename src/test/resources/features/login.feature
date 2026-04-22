@@ -12,7 +12,7 @@ Feature: OrangeHRM Login
     When the user logs in with username "Admin" and password "admin123"
     Then the user should be logged in successfully
 
-  @regression
+  @smoke @regression
   Scenario: Invalid login with wrong password
     When the user logs in with username "Admin" and password "wrongPassword"
     Then an authentication error message should be displayed

@@ -44,13 +44,18 @@ public class TestRunner extends AbstractTestNGCucumberTests {
      * Provides Cucumber scenarios to TestNG.
      *
      * <p><b>Why override</b>:
-     * Keeping this in place allows easy enablement of parallel execution in the future (Phase 3)
-     * by toggling the DataProvider {@code parallel} flag without changing scenario code.
+     * Cucumber scenarios are executed via TestNG's {@code @DataProvider} mechanism. Enabling {@code parallel=true}
+     * allows multiple scenarios to run concurrently, which is only safe because {@code DriverManager} uses
+     * {@link java.lang.ThreadLocal} to isolate WebDriver per thread.
+     *
+     * <p><b>Why suite XML matters too</b>:
+     * Thread pools for parallelized data providers are controlled via {@code testng.xml} attributes such as
+     * {@code data-provider-thread-count}.
      *
      * @return scenarios as a TestNG data provider
      */
     @Override
-    @DataProvider(parallel = false)
+    @DataProvider(parallel = true)
     public Object[][] scenarios() {
         return super.scenarios();
     }
