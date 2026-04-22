@@ -1,7 +1,6 @@
 package com.framework.stepdefinitions.auth;
 
-import com.framework.driver.DriverManager;
-import com.framework.pages.auth.LoginPage;
+import com.framework.actions.LoginActions;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -24,8 +23,8 @@ public class LoginSteps {
 
     private static final Logger LOGGER = LogManager.getLogger(LoginSteps.class);
 
-    // Why: keep page object lifecycle simple; pages are thin wrappers over BasePage + DriverManager.
-    private final LoginPage loginPage = new LoginPage();
+    // Why: Action layer owns orchestration so step definitions stay clean and stable.
+    private final LoginActions loginActions = new LoginActions();
 
     /**
      * Ensures we are on the login page before executing login actions.
@@ -35,7 +34,7 @@ public class LoginSteps {
      */
     @Given("the user is on the OrangeHRM login page")
     public void theUserIsOnTheOrangeHrmLoginPage() {
-        String currentUrl = DriverManager.getDriver().getCurrentUrl();
+        String currentUrl = loginActions.getCurrentUrl();
         LOGGER.info("Current URL={}", currentUrl);
 
         // Why: URL is a lightweight signal that avoids element-level Selenium calls in steps.
@@ -52,7 +51,7 @@ public class LoginSteps {
     @When("the user logs in with username {string} and password {string}")
     public void theUserLogsInWithUsernameAndPassword(String username, String password) {
         LOGGER.info("Attempting login with username='{}' and password='{}'", username, mask(password));
-        loginPage.login(username, password);
+        loginActions.login(username, password);
     }
 
     /**
@@ -63,9 +62,9 @@ public class LoginSteps {
      */
     @Then("the user should be logged in successfully")
     public void theUserShouldBeLoggedInSuccessfully() {
-        loginPage.waitForSuccessfulLoginRedirect();
+        loginActions.waitForSuccessfulLoginRedirect();
 
-        String currentUrl = DriverManager.getDriver().getCurrentUrl();
+        String currentUrl = loginActions.getCurrentUrl();
         LOGGER.info("Post-login URL={}", currentUrl);
 
         Assert.assertTrue(currentUrl.contains("/dashboard"),
@@ -77,7 +76,7 @@ public class LoginSteps {
      */
     @Then("an authentication error message should be displayed")
     public void anAuthenticationErrorMessageShouldBeDisplayed() {
-        String error = loginPage.getErrorMessage();
+        String error = loginActions.getAuthenticationErrorMessage();
         LOGGER.info("Auth error message='{}'", error);
 
         // Why: OrangeHRM demo shows a consistent message; asserting exact string helps catch regressions.
@@ -89,7 +88,7 @@ public class LoginSteps {
      */
     @Then("a required field validation message should be displayed")
     public void aRequiredFieldValidationMessageShouldBeDisplayed() {
-        String validation = loginPage.getRequiredFieldValidationMessage();
+        String validation = loginActions.getRequiredFieldValidationMessage();
         LOGGER.info("Validation message='{}'", validation);
 
         Assert.assertEquals(validation.trim(), "Required", "Expected required field validation message.");

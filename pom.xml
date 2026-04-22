@@ -76,14 +76,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- PicoContainer ObjectFactory for Cucumber: constructor DI across step definitions. -->
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-picocontainer</artifactId>
-            <version>${cucumber.version}</version>
-            <scope>test</scope>
-        </dependency>
-
         <!-- TestNG engine used by Surefire and by cucumber-testng adapter. -->
         <dependency>
             <groupId>org.testng</groupId>
