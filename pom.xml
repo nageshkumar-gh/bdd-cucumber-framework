@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Root Maven descriptor for the OrangeHRM BDD automation framework.
+  Centralizes dependency versions so every module resolves the same stack (reproducible CI),
+  and wires compiler + reporting plugins once for the whole project.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Aligns artifact identity with the Java package tree we will add under src/ -->
+    <groupId>com.framework</groupId>
+    <artifactId>bdd-cucumber-framework</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>BDD Cucumber Framework</name>
+    <description>Enterprise BDD stack (Cucumber 7, Selenium 4, TestNG, Allure, Log4j2) for OrangeHRM.</description>
+
+    <properties>
+        <!-- Java 17 is the LTS baseline agreed for this framework (records, better APIs, long support). -->
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- Dependency versions: bump intentionally after smoke-testing compatibility together. -->
+        <selenium.version>4.41.0</selenium.version>
+        <cucumber.version>7.21.1</cucumber.version>
+        <testng.version>7.10.2</testng.version>
+        <allure.version>2.29.1</allure.version>
+        <log4j.version>2.24.3</log4j.version>
+        <webdrivermanager.version>5.9.2</webdrivermanager.version>
+        <jackson.version>2.18.3</jackson.version>
+        <poi.version>5.4.0</poi.version>
+
+        <!-- Plugin versions: pinned so CI and local builds behave identically. -->
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <allure-maven-plugin.version>2.12.0</allure-maven-plugin.version>
+    </properties>
+
+    <!-- Import BOMs once; child dependencies inherit aligned versions without drift. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-bom</artifactId>
+                <version>${allure.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Browser automation API + bundled drivers metadata (Selenium Manager). -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+
+        <!-- Gherkin step glue written in Java; pairs with cucumber-testng for execution. -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Runs feature files through TestNG lifecycle (listeners, suites, parallel hooks later). -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- TestNG engine used by Surefire and by cucumber-testng adapter. -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Bridges Cucumber events to Allure model (Phase 3 reporting). -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Attaches TestNG metadata/results to Allure (suites, parameters). -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Log4j2 API: compile-time logging facade used across framework code. -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <!-- Log4j2 core: appenders + configuration from log4j2.xml at runtime. -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <!-- Routes libraries that speak SLF4J (including Selenium) into Log4j2 without duplicate bindings. -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <!-- Optional driver bootstrap helper (custom grids, pinned versions) beyond Selenium Manager. -->
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>${webdrivermanager.version}</version>
+        </dependency>
+
+        <!-- JSON binding for config/test data (typed DTOs instead of manual string parsing). -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- Spreadsheet ingestion for data-driven scenarios (POI chosen over legacy formats). -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Enforces Java 17 bytecode + enables preview-free modern language features. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- Executes TestNG suites; suite file lands in Step 12 of Phase 1. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                </configuration>
+            </plugin>
+
+            <!-- Generates Allure results under target/ for local `allure serve` and CI publishing. -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>${allure-maven-plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
