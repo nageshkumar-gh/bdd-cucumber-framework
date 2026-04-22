@@ -2,6 +2,7 @@ package com.framework.hooks;
 
 import com.framework.config.ConfigReader;
 import com.framework.driver.DriverManager;
+import com.framework.reporting.AllureManager;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -87,8 +88,9 @@ public class Hooks {
     /**
      * Saves a screenshot to disk for a failed scenario.
      *
-     * <p><b>Why not attach to report yet</b>:
-     * Allure attachment wiring comes in Phase 3; for Phase 1 we focus on producing evidence on disk.
+     * <p><b>Why disk + Allure</b>:
+     * Disk artifacts are easy to browse locally; Allure attachments make failures visible inside the
+     * HTML report for stakeholders and CI consumers.
      *
      * @param scenario failed scenario
      */
@@ -115,6 +117,10 @@ public class Hooks {
         try {
             Files.copy(screenshotFile.toPath(), destination);
             LOGGER.info("Saved failure screenshot: {}", destination.toAbsolutePath());
+
+            // Why: Allure becomes far more useful when failures include screenshots without requiring someone
+            // to hunt through CI artifacts folders.
+            AllureManager.attachPngFile("Failure Screenshot - " + scenario.getName(), destination);
         } catch (IOException ex) {
             LOGGER.warn("Failed to save screenshot to: {}", destination.toAbsolutePath(), ex);
         }
