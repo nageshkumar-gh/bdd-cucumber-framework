@@ -28,7 +28,8 @@ public class LoginActions {
     /**
      * Creates a {@link LoginActions} instance with a default {@link LoginPage}.
      *
-     * <p><b>Why</b>: keeps Phase 2 refactor minimal; later we will inject this via PicoContainer.
+     * <p><b>Why</b>: keeps the refactor incremental; we can later introduce explicit wiring/factories
+     * if we need shared page instances or cross-scenario state (without coupling steps to construction).
      */
     public LoginActions() {
         this(new LoginPage());
@@ -37,7 +38,7 @@ public class LoginActions {
     /**
      * Creates a {@link LoginActions} instance with an explicitly provided {@link LoginPage}.
      *
-     * <p><b>Why</b>: constructor injection makes this class testable and DI-friendly (Phase 2 DI refactor).
+     * <p><b>Why</b>: constructor injection makes this class testable and avoids hidden globals.
      *
      * @param loginPage page object used to perform login actions
      */

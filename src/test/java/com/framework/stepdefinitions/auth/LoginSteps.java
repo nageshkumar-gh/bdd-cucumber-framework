@@ -15,9 +15,9 @@ import org.testng.Assert;
  * Step definitions translate business-readable Gherkin into executable actions and assertions.
  * We keep assertions here (not in Page Objects) so pages remain reusable and side-effect focused.
  *
- * <p><b>Current phase constraint</b>:
- * In Phase 1 we allow steps to call {@link LoginPage} directly. In Phase 2 we will introduce an
- * Action layer to keep step methods as one-liners.
+ * <p><b>Layering rule</b>:
+ * Steps should delegate orchestration to {@link LoginActions} so they stay readable and stable
+ * when UI flows evolve.
  */
 public class LoginSteps {
 
