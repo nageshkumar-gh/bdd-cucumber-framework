@@ -2,6 +2,7 @@ package com.framework.pages;
 
 import com.framework.config.ConfigReader;
 import com.framework.driver.DriverManager;
+import com.framework.exceptions.FrameworkException;
 import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,7 +70,7 @@ public abstract class BasePage {
             WebElement element = waitForElementClickable(locator);
             element.click();
         } catch (TimeoutException ex) {
-            throw new IllegalStateException("Timed out waiting to click element: " + locator, ex);
+            throw FrameworkException.withCause("Timed out waiting to click element: " + locator, ex);
         }
     }
 
@@ -88,7 +89,7 @@ public abstract class BasePage {
             element.clear();
             element.sendKeys(text == null ? "" : text);
         } catch (TimeoutException ex) {
-            throw new IllegalStateException("Timed out waiting to type into element: " + locator, ex);
+            throw FrameworkException.withCause("Timed out waiting to type into element: " + locator, ex);
         }
     }
 
@@ -102,7 +103,7 @@ public abstract class BasePage {
         try {
             return waitForElementVisible(locator).getText();
         } catch (TimeoutException ex) {
-            throw new IllegalStateException("Timed out waiting to get text from element: " + locator, ex);
+            throw FrameworkException.withCause("Timed out waiting to get text from element: " + locator, ex);
         }
     }
 
@@ -156,9 +157,13 @@ public abstract class BasePage {
      */
     protected void waitForUrlContains(String urlFragment) {
         if (urlFragment == null || urlFragment.isBlank()) {
-            throw new IllegalArgumentException("urlFragment must not be null/blank");
+            throw new FrameworkException("Invalid wait configuration: urlFragment must not be null/blank");
         }
-        wait.until(ExpectedConditions.urlContains(urlFragment));
+        try {
+            wait.until(ExpectedConditions.urlContains(urlFragment));
+        } catch (TimeoutException ex) {
+            throw FrameworkException.withCause("Timed out waiting for URL to contain '" + urlFragment + "'", ex);
+        }
     }
 
     /**

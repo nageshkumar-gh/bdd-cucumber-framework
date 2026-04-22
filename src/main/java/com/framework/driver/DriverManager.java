@@ -1,5 +1,6 @@
 package com.framework.driver;
 
+import com.framework.exceptions.FrameworkException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -47,7 +48,9 @@ public final class DriverManager {
      */
     public static void initDriver(String browser, boolean headless) {
         if (DRIVER.get() != null) {
-            throw new IllegalStateException("WebDriver is already initialized for this thread.");
+            throw new FrameworkException("WebDriver is already initialized for thread="
+                    + Thread.currentThread().getName() + ". This usually indicates Hooks ran twice or parallel "
+                    + "lifecycle wiring is incorrect.");
         }
 
         WebDriver driver = DriverFactory.createDriver(browser, headless);
@@ -66,7 +69,8 @@ public final class DriverManager {
     public static WebDriver getDriver() {
         WebDriver driver = DRIVER.get();
         if (driver == null) {
-            throw new IllegalStateException("WebDriver is not initialized for this thread. Call initDriver() first.");
+            throw new FrameworkException("WebDriver is not initialized for thread="
+                    + Thread.currentThread().getName() + ". Ensure Hooks initializes the driver before steps/pages run.");
         }
         return driver;
     }
@@ -86,8 +90,13 @@ public final class DriverManager {
         }
 
         try {
-            driver.quit();
-            LOGGER.info("WebDriver quit for thread={}", Thread.currentThread().getName());
+            try {
+                driver.quit();
+                LOGGER.info("WebDriver quit for thread={}", Thread.currentThread().getName());
+            } catch (RuntimeException ex) {
+                throw FrameworkException.withCause("Failed to quit WebDriver for thread="
+                        + Thread.currentThread().getName(), ex);
+            }
         } finally {
             DRIVER.remove();
         }

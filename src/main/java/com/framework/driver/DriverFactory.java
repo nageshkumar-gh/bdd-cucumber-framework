@@ -1,5 +1,6 @@
 package com.framework.driver;
 
+import com.framework.exceptions.FrameworkException;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,7 +56,7 @@ public final class DriverFactory {
      */
     public static WebDriver createDriver(String browser, boolean headless) {
         if (browser == null || browser.isBlank()) {
-            throw new IllegalArgumentException("browser must not be null/blank");
+            throw new FrameworkException("Invalid browser configuration: browser must not be null/blank");
         }
 
         String normalized = browser.trim().toLowerCase();
@@ -64,7 +65,7 @@ public final class DriverFactory {
         return switch (normalized) {
             case BROWSER_CHROME -> createChromeDriver(headless);
             case BROWSER_FIREFOX -> createFirefoxDriver(headless);
-            default -> throw new IllegalArgumentException("Unsupported browser: " + browser
+            default -> throw new FrameworkException("Unsupported browser: '" + browser + "'"
                     + " (supported: " + BROWSER_CHROME + ", " + BROWSER_FIREFOX + ")");
         };
     }
@@ -80,8 +81,12 @@ public final class DriverFactory {
      */
     private static WebDriver createChromeDriver(boolean headless) {
         // Why: explicit setup prevents "it works on my machine" issues when chromedriver is missing/mismatched.
-        WebDriverManager.chromedriver().setup();
-        return new ChromeDriver(BrowserOptions.builder().headless(headless).buildChrome());
+        try {
+            WebDriverManager.chromedriver().setup();
+            return new ChromeDriver(BrowserOptions.builder().headless(headless).buildChrome());
+        } catch (RuntimeException ex) {
+            throw FrameworkException.withCause("Failed to create Chrome WebDriver (headless=" + headless + ")", ex);
+        }
     }
 
     /**
@@ -91,8 +96,12 @@ public final class DriverFactory {
      * @return configured {@link FirefoxDriver}
      */
     private static WebDriver createFirefoxDriver(boolean headless) {
-        WebDriverManager.firefoxdriver().setup();
-        return new FirefoxDriver(BrowserOptions.builder().headless(headless).buildFirefox());
+        try {
+            WebDriverManager.firefoxdriver().setup();
+            return new FirefoxDriver(BrowserOptions.builder().headless(headless).buildFirefox());
+        } catch (RuntimeException ex) {
+            throw FrameworkException.withCause("Failed to create Firefox WebDriver (headless=" + headless + ")", ex);
+        }
     }
 }
 
