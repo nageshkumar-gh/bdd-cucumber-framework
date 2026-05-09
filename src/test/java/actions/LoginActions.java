@@ -1,7 +1,7 @@
-package com.framework.actions;
+package framework.actions;
 
-import com.framework.driver.DriverManager;
-import com.framework.pages.auth.LoginPage;
+import framework.driver.DriverManager;
+import framework.pages.auth.LoginPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,14 +1,16 @@
-package com.framework.pages;
+package framework.pages;
 
-import com.framework.config.ConfigReader;
-import com.framework.driver.DriverManager;
-import com.framework.exceptions.FrameworkException;
+import framework.config.ConfigReader;
+import framework.driver.DriverManager;
+import framework.exceptions.FrameworkException;
 import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.Platform;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -90,6 +92,21 @@ public abstract class BasePage {
             element.sendKeys(text == null ? "" : text);
         } catch (TimeoutException ex) {
             throw FrameworkException.withCause("Timed out waiting to type into element: " + locator, ex);
+        }
+    }
+
+    /**
+     * Replaces the entire field value (Oxide/Vue inputs often ignore {@link WebElement#clear()}).
+     */
+    protected void replaceText(By locator, String text) {
+        try {
+            WebElement element = waitForElementVisible(locator);
+            element.click();
+            Keys mod = Platform.getCurrent().is(Platform.MAC) ? Keys.COMMAND : Keys.CONTROL;
+            element.sendKeys(Keys.chord(mod, "a"), Keys.DELETE);
+            element.sendKeys(text == null ? "" : text);
+        } catch (TimeoutException ex) {
+            throw FrameworkException.withCause("Timed out waiting to replace text in element: " + locator, ex);
         }
     }
 
@@ -192,6 +209,48 @@ public abstract class BasePage {
      */
     protected String getPageTitle() {
         return driver.getTitle();
+    }
+
+    /**
+     * Navigates to an application path under the configured {@code base.url} (OrangeHRM uses
+     * {@code /web/index.php/...} entry points).
+     *
+     * @param path must start with {@code "/"} (for example {@code /web/index.php/pim/viewEmployeeList})
+     */
+    protected void navigateToAppPath(String path) {
+        if (path == null || !path.startsWith("/")) {
+            throw new FrameworkException("path must start with '/' but was: " + path);
+        }
+        String base = ConfigReader.getInstance().getBaseUrl().replaceAll("/+$", "");
+        driver.get(base + path);
+        waitForPageLoad();
+    }
+
+    /**
+     * Reads the current value of an input or textarea (the {@code value} property).
+     *
+     * @param locator input locator
+     * @return property value, or empty string when absent
+     */
+    protected String getDomPropertyValue(By locator, String propertyName) {
+        try {
+            return waitForElementVisible(locator).getDomProperty(propertyName);
+        } catch (TimeoutException ex) {
+            throw FrameworkException.withCause("Timed out reading property '" + propertyName + "' for: " + locator, ex);
+        }
+    }
+
+    /**
+     * Waits until an element is no longer visible (used for transient toasts that intercept clicks).
+     *
+     * @param locator element locator
+     */
+    protected void waitUntilInvisible(By locator) {
+        try {
+            wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        } catch (TimeoutException ex) {
+            throw FrameworkException.withCause("Timed out waiting for element to disappear: " + locator, ex);
+        }
     }
 }
 

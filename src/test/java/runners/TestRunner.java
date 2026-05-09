@@ -1,5 +1,6 @@
-package com.framework.runners;
+package framework.runners;
 
+import framework.logging.LogDirectory;
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 import org.testng.annotations.DataProvider;
@@ -17,8 +18,8 @@ import org.testng.annotations.DataProvider;
  * suite XML selection, parallelization later, and TestNG reporting integrations.
  */
 @CucumberOptions(
-        features = "src/test/resources/features",
-        glue = {"com.framework"},
+        features = "classpath:features",
+        glue = {"framework.stepdefinitions", "framework.hooks"},
         tags = "@smoke",
         plugin = {
                 "pretty",
@@ -29,6 +30,10 @@ import org.testng.annotations.DataProvider;
         monochrome = true
 )
 public class TestRunner extends AbstractTestNGCucumberTests {
+
+    static {
+        LogDirectory.configure();
+    }
 
     /**
      * TestNG/Cucumber requires a public no-arg constructor for runner instantiation.
@@ -60,4 +65,3 @@ public class TestRunner extends AbstractTestNGCucumberTests {
         return super.scenarios();
     }
 }
-
