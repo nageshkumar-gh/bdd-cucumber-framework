@@ -171,6 +171,10 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <!-- Absolute log dir so file appenders work even when Surefire’s working directory differs. -->
+                    <systemPropertyVariables>
+                        <framework.log.dir>${project.build.directory}/logs</framework.log.dir>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
 

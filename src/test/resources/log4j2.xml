@@ -13,6 +13,14 @@
     <Properties>
         <!-- Why property indirection: lets us reuse the same pattern in multiple appenders without drift. -->
         <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%t] %logger{36} - %msg%n</Property>
+        <!--
+          Log directory resolution:
+          - Maven Surefire sets -Dframework.log.dir to an absolute path (${project.build.directory}/logs).
+          - IDE runs typically omit that; we fall back to ${user.dir}/target/logs so logs still land under
+            the project when the run configuration's working directory is the module root (IntelliJ default).
+          - Override anytime: -Dframework.log.dir=/absolute/path/to/logs
+        -->
+        <Property name="LOG_DIR">${sys:framework.log.dir:-${sys:user.dir}/target/logs}</Property>
     </Properties>
 
     <Appenders>
@@ -23,8 +31,8 @@
 
         <!-- Rolling file gives us durable evidence across reruns without unbounded disk growth. -->
         <RollingFile name="RollingFile"
-                     fileName="target/logs/framework.log"
-                     filePattern="target/logs/framework-%d{yyyy-MM-dd}-%i.log.gz">
+                     fileName="${LOG_DIR}/framework.log"
+                     filePattern="${LOG_DIR}/framework-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
                 <!-- Why time + size: prevents huge single files while still allowing daily rotation in CI. -->

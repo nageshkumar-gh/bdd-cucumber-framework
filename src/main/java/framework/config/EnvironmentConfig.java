@@ -1,4 +1,4 @@
-package com.framework.config;
+package framework.config;
 
 import java.util.Locale;
 import java.util.Objects;

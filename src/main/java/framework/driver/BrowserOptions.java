@@ -1,4 +1,4 @@
-package com.framework.driver;
+package framework.driver;
 
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.chrome.ChromeOptions;

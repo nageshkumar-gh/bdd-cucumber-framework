@@ -1,6 +1,6 @@
-package com.framework.driver;
+package framework.driver;
 
-import com.framework.exceptions.FrameworkException;
+import framework.exceptions.FrameworkException;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

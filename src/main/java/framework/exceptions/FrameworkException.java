@@ -1,4 +1,4 @@
-package com.framework.exceptions;
+package framework.exceptions;
 
 /**
  * Framework-specific runtime exception used for failures that should be actionable for testers and CI.
