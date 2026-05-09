@@ -1,4 +1,4 @@
-package com.framework.pages;
+package pages;
 
 import com.framework.config.ConfigReader;
 import com.framework.driver.DriverManager;

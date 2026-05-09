@@ -1,8 +1,8 @@
-package com.framework.hooks;
+package hooks;
 
 import com.framework.config.ConfigReader;
 import com.framework.driver.DriverManager;
-import com.framework.reporting.AllureManager;
+import reporting.AllureManager;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;

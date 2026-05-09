@@ -1,6 +1,6 @@
-package com.framework.pages.auth;
+package pages.auth;
 
-import com.framework.pages.BasePage;
+import pages.BasePage;
 import org.openqa.selenium.By;
 
 /**

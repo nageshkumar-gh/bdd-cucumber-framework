@@ -1,6 +1,6 @@
-package com.framework.stepdefinitions.auth;
+package auth;
 
-import com.framework.actions.LoginActions;
+import actions.LoginActions;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

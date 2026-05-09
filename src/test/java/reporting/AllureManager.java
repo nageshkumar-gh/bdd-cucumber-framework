@@ -1,4 +1,4 @@
-package com.framework.reporting;
+package reporting;
 
 import io.qameta.allure.Allure;
 import java.io.ByteArrayInputStream;
